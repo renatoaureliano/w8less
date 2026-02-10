@@ -3,6 +3,7 @@ import { NumberNode } from './components/NumberNode';
 import { HttpNode } from './components/HttpNode'; // Verifique se a importação está correta (default vs named)
 import LlmNode from './components/LlmNode';
 import IfNode from './components/IfNode';
+import WebhookNode from './components/WebhookNode';
 import ExecutionSidebar from './components/ExecutionSidebar';
 import {
   ReactFlow,
@@ -22,7 +23,7 @@ const nodeTypes = {
   httpNode: HttpNode,
   llmNode: LlmNode,
   ifNode: IfNode,
-  webhookNode: HttpNode,
+  webhookNode: WebhookNode,
 };
 
 // 👇 IMPORTANTE: Coloque o seu link do Codespaces aqui (sem barra no final)
@@ -196,7 +197,10 @@ export default function App() {
       style,
       data: { 
         ...node.data, 
-        onChange: onNodeDataChange 
+        onChange: onNodeDataChange,
+        // informa o workflowId e API URL para o WebhookNode
+        workflowId: workflowId,
+        apiUrl: API_URL,
       },
     };
   });
