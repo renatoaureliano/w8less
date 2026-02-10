@@ -6,6 +6,7 @@ import type { WorkflowDefinition, W8Node, W8Edge } from '@w8less/shared';
 import IORedis from 'ioredis';
 import vm from 'vm';
 import { OpenAI } from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { prisma } from './prisma';
 
 // Conexão Redis
@@ -264,37 +265,65 @@ export async function executeGraph(workflow: WorkflowDefinition) {
         const model = currentNode.data.model || 'gpt-3.5-turbo';
         const promptTemplate = currentNode.data.prompt || '';
 
-        // Substitui variáveis no prompt
+        // ✅ Substitui variáveis no prompt ANTES de chamar qualquer API
         const finalPrompt = replaceTemplateVariables(promptTemplate, flowContext);
         console.log(`       📝 Prompt final:`, finalPrompt);
 
-        // Integração real com OpenAI
         let llmResponse: string;
-        
-        if (apiKey && apiKey.trim()) {
-          // Usa API real da OpenAI
-          try {
-            const client = new OpenAI({ apiKey });
-            const completion = await client.chat.completions.create({
-              model: model || 'gpt-3.5-turbo',
-              max_tokens: 1024,
-              messages: [
-                { role: 'user', content: finalPrompt }
-              ]
-            });
-            
-            llmResponse = completion.choices[0].message.content || 'Erro ao processar resposta';
-            console.log(`       ✨ LLM Response:`, llmResponse);
-          } catch (apiError: any) {
-            console.log(`       ⚠️  Erro na API OpenAI, usando mock:`, apiError.message);
-            // Fallback para mock se a API falhar
-            llmResponse = finalPrompt.includes('quebrado') || finalPrompt.includes('Odiei') ? 'NEGATIVO' : 'POSITIVO';
+
+        // CASO 1: SIMULADOR GRÁTIS (mock-pro)
+        if (model === 'mock-pro') {
+          console.log(`       🎭 Usando Modo Simulador`);
+          llmResponse = `[SIMULADOR] Processando: ${finalPrompt}`;
+          executionLog.push(`LLM (${model}) -> Simulador OK`);
+        }
+        // CASO 2: GOOGLE GEMINI
+        else if (model === 'gemini-pro') {
+          const geminiKey = process.env.GEMINI_API_KEY;
+          if (!geminiKey || !geminiKey.trim()) {
+            throw new Error('GEMINI_API_KEY não configurada no .env');
           }
-        } else {
-          // Mock quando não há API Key
-          console.log(`       💭 Usando mock (sem API Key)...`);
-          // Tenta inferir o sentimento do prompt para demonstração
-          llmResponse = finalPrompt.toLowerCase().includes('odi') || finalPrompt.toLowerCase().includes('quebrado') ? 'NEGATIVO' : 'POSITIVO';
+
+          try {
+            const genAI = new GoogleGenerativeAI(geminiKey);
+            const genModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
+            const result = await genModel.generateContent(finalPrompt);
+            llmResponse = result.response.text() || 'Erro ao processar resposta do Gemini';
+            console.log(`       ✨ Gemini Response:`, llmResponse);
+            executionLog.push(`LLM (${model}) -> OK`);
+          } catch (apiError: any) {
+            console.error(`       ❌ Erro na API Gemini:`, apiError.message);
+            throw new Error(`Erro Gemini: ${apiError.message}`);
+          }
+        }
+        // CASO 3: OPENAI (padrão)
+        else {
+          if (apiKey && apiKey.trim()) {
+            // Usa API real da OpenAI
+            try {
+              const client = new OpenAI({ apiKey });
+              const completion = await client.chat.completions.create({
+                model: model || 'gpt-3.5-turbo',
+                max_tokens: 1024,
+                messages: [
+                  { role: 'user', content: finalPrompt }
+                ]
+              });
+              
+              llmResponse = completion.choices[0].message.content || 'Erro ao processar resposta';
+              console.log(`       ✨ OpenAI Response:`, llmResponse);
+              executionLog.push(`LLM (${model}) -> OK`);
+            } catch (apiError: any) {
+              console.log(`       ⚠️  Erro na API OpenAI, usando mock:`, apiError.message);
+              // Fallback para mock se a API falhar
+              llmResponse = finalPrompt.toLowerCase().includes('negativo') ? 'NEGATIVO' : 'POSITIVO';
+            }
+          } else {
+            // Mock quando não há API Key
+            console.log(`       💭 Usando mock (sem API Key)...`);
+            llmResponse = finalPrompt.toLowerCase().includes('negativo') ? 'NEGATIVO' : 'POSITIVO';
+            executionLog.push(`LLM (${model}) -> Mock (sem API Key)`);
+          }
         }
 
         flowContext = llmResponse;
