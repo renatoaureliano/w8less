@@ -123,16 +123,6 @@ export async function executeGraph(workflow: WorkflowDefinition) {
   if (!currentNode) {
     throw new Error("Workflow sem nó de início (type='input' | 'numberInput' | 'webhookNode with payload')!");
   }
-    // WEBHOOK NODE: injeta initialPayload como contexto
-    if (currentNode.type === 'webhookNode') {
-      flowContext = currentNode.data?.initialPayload || currentNode.data?.payload || {};
-      console.log(`       🎣 Webhook initial payload:`, flowContext);
-      history[currentNode.id].output = flowContext;
-      history[currentNode.id].status = 'success';
-      history[currentNode.id].logs.push('Webhook payload injected');
-      history[currentNode.id].duration = Date.now() - start;
-    }
-
 
   while (currentNode) {
     console.log(`[Exec] 👉 Visitando Nó: ${currentNode.data.label || currentNode.type} (${currentNode.type})`);
@@ -145,6 +135,25 @@ export async function executeGraph(workflow: WorkflowDefinition) {
     const start = Date.now();
     // capture input for this node
     history[currentNode.id].input = flowContext;
+
+    // WEBHOOK NODE: injeta initialPayload como contexto
+    if (currentNode.type === 'webhookNode') {
+      try {
+        flowContext = currentNode.data?.initialPayload || currentNode.data?.payload || {};
+        console.log(`       🎣 Webhook initial payload:`, flowContext);
+        history[currentNode.id].output = flowContext;
+        history[currentNode.id].status = 'success';
+        history[currentNode.id].logs.push('Webhook payload injected');
+        history[currentNode.id].duration = Date.now() - start;
+      } catch (err: any) {
+        console.error(`       ❌ Erro ao processar webhook:`, err.message);
+        executionLog.push(`Erro Webhook: ${err.message}`);
+        history[currentNode.id].output = { __webhook_error: err.message };
+        history[currentNode.id].status = 'error';
+        history[currentNode.id].logs.push(`Erro: ${err.message}`);
+        history[currentNode.id].duration = Date.now() - start;
+      }
+    }
 
     // 👇 MUDANÇA 2: Extraímos os dados se for nosso nó customizado
     if (currentNode.type === 'input' || currentNode.type === 'numberInput') {
