@@ -78,42 +78,44 @@ export function LlmNode({ data, id }: CustomNodeProps) {
   const style = { ...styleBase, border: `2px solid ${borderColor}` };
 
   return (
-    <div style={style}>
+    <div className="w8less-node" style={style}>
       <Handle type="target" position={Position.Top} />
 
-      <label style={labelStyle}>🤖 LLM AI</label>
+      <div className="w8less-header">
+        <div style={{ fontWeight: 700 }}>🤖 LLM AI</div>
+      </div>
 
-      <label style={labelStyle}>API Key</label>
-      <input
-        type="password"
-        placeholder="sk-..."
-        defaultValue={data.apiKey || ''}
-        onChange={onApiKeyChange}
-        className="nodrag"
-        style={inputStyle}
-      />
+      <div className="w8less-body">
+        <label className="w8less-label">API Key</label>
+        <input
+          type="password"
+          placeholder="sk-..."
+          defaultValue={data.apiKey || ''}
+          onChange={onApiKeyChange}
+          className="nodrag w8less-input"
+        />
 
-      <label style={labelStyle}>Model</label>
-      <select 
-        defaultValue={data.model || 'gpt-3.5-turbo'} 
-        onChange={onModelChange} 
-        className="nodrag" 
-        style={inputStyle}
-      >
-        <option value="gpt-3.5-turbo">🤖 OpenAI (gpt-3.5-turbo)</option>
-        <option value="gpt-4o">🤖 OpenAI (gpt-4o)</option>
-        <option value="gemini-pro">🔮 Google Gemini (gemini-pro)</option>
-        <option value="mock-pro">🎭 Simulador Grátis (mock-pro)</option>
-      </select>
+        <label className="w8less-label">Model</label>
+        <select
+          defaultValue={data.model || 'gpt-3.5-turbo'}
+          onChange={onModelChange}
+          className="nodrag w8less-input"
+        >
+          <option value="gpt-3.5-turbo">🤖 OpenAI (gpt-3.5-turbo)</option>
+          <option value="gpt-4o">🤖 OpenAI (gpt-4o)</option>
+          <option value="gemini-pro">🔮 Google Gemini (gemini-pro)</option>
+          <option value="mock-pro">🎭 Simulador Grátis (mock-pro)</option>
+        </select>
 
-      <label style={labelStyle}>Prompt (Use {"{{"} $input.propriedade {"}}"} para variáveis)</label>
-      <textarea
-        placeholder={`Exemplo: Escreva um poema sobre {{ $input.theme }}`}
-        defaultValue={data.prompt || ''}
-        onChange={onPromptChange}
-        className="nodrag"
-        style={textareaStyle}
-      />
+        <label className="w8less-label">Prompt (Use {"{{"} $input.propriedade {"}}"} para variáveis)</label>
+        <textarea
+          placeholder={`Exemplo: Escreva um poema sobre {{ $input.theme }}`}
+          defaultValue={data.prompt || ''}
+          onChange={onPromptChange}
+          className="nodrag w8less-input"
+          style={{ minHeight: 60, fontFamily: 'monospace' }}
+        />
+      </div>
 
       <Handle type="source" position={Position.Bottom} />
     </div>
