@@ -1,0 +1,260 @@
+================================================================================
+W8LESS - DOCUMENTAÇÃO DA ESTRUTURA DE ARQUIVOS
+================================================================================
+
+RAIZ DO PROJETO (/workspaces/w8less)
+------------------------------------
+. docker-compose.yml
+  └─ Orquestra os containers Docker (Postgres, Redis, MinIO)
+  └─ Configuração: user/password in Postgres, Redis porta 6379, MinIO 9000/9001
+
+. package.json (raiz)
+  └─ Dependências do workspace root
+  └─ Scripts para gerenciar todo o projeto
+
+. tsconfig.base.json
+  └─ Configuração base do TypeScript para todo o monorepo
+  └─ Define target (ES2020), module (commonjs), strict: true
+
+. README.md
+  └─ Documentação principal do projeto
+
+. .gitignore
+  └─ Arquivo para ignorar pastas (node_modules, dist, .env)
+
+
+================================================================================
+BACKEND - ENGINE (/packages/engine)
+================================================================================
+
+Raiz da Engine:
+. package.json
+  └─ Scripts: "dev" (ts-node-dev), "build" (tsc), "test:*"
+  └─ Dependências: @prisma/client, express, bullmq, cors, openai, ioredis
+
+. tsconfig.json
+  └─ Configuração do Engine
+  └─ rootDir: "." (inclui arquivos fora de src como prisma.config.ts)
+  └─ outDir: "./dist"
+
+. prisma.config.ts
+  └─ Configuração explícita do Prisma 7+
+  └─ Define schema path e migrations path
+
+. .env
+  └─ Variáveis de ambiente (DATABASE_URL com credenciais Postgres)
+
+
+SRC/ (Source Code):
+. src/index.ts
+  └─ Entry point (pode ser vazio ou executor de testes)
+
+. src/server.ts
+  └─ Inicializa Express + CORS + middleware
+  └─ Define rotas: /workflows/execute (POST), /workflows/jobs/:id (GET)
+  └─ Registra router de workflows em /workflows
+
+. src/workflow-controller.ts
+  └─ Express Router com CRUD de workflows
+  └─ POST /workflows - Cria novo workflow
+  └─ PUT /workflows/:id - Atualiza workflow
+  └─ GET /workflows - Lista todos (id + name)
+  └─ GET /workflows/:id - Retorna workflow completo
+  └─ Inicializa PrismaClient (lê DATABASE_URL do .env)
+
+. src/prisma.ts
+  └─ Singleton do PrismaClient
+  └─ Verifica se DATABASE_URL está definida
+  └─ Exporta prisma para usar em outros arquivos
+  └─ Com logging: query, info, warn, error
+
+. src/queue.ts
+  └─ Inicializa fila BullMQ (Redis)
+  └─ Define job 'execute-workflow' (processa workflows)
+
+. src/testIntegration.ts
+  └─ Teste de integração end-to-end
+  └─ Testa pipeline: workflow → fila → execução
+
+. src/testLlmWorkflow.ts
+  └─ Teste específico de workflows com nós LLM
+  └─ Executa nós de IA (OpenAI)
+
+. src/testWorkflow.ts
+  └─ Teste básico de workflows
+  └─ Valida estrutura de nós/edges
+
+. src/testIfNode.ts
+  └─ Teste do nó IF (condicional)
+  └─ Valida fluxo com branches condicionais
+
+. src/testGrandFinale.ts
+  └─ Teste completo de todas as features
+  └─ Valida: nodes, edges, execução, persistência
+
+. src/generated/
+  └─ Código gerado automaticamente pelo Prisma
+  └─ Contém tipos e interfaces do banco
+
+
+PRISMA/ (Banco de Dados):
+. prisma/schema.prisma
+  └─ Define modelo Workflow (id, name, nodes, edges, createdAt, updatedAt)
+  └─ Generator: prisma-client-js
+  └─ Datasource: postgresql
+
+. prisma/migrations/
+  └─ Histórico de migrações do banco
+  └─ 20260210144339_init/ - Migração inicial criando tabela Workflow
+
+
+================================================================================
+FRONTEND - WEBAPP (/packages/webapp)
+================================================================================
+
+Raiz da Webapp:
+. package.json
+  └─ Dependencies: react, react-flow-renderer (@xyflow/react)
+  └─ DevDependencies: vite, @vitejs/plugin-react
+
+. tsconfig.json
+  └─ Configuração TypeScript do frontend
+
+. vite.config.ts
+  └─ Configuração do bundler Vite
+  └─ Plugin React para JSX/TSX
+
+. index.html
+  └─ HTML raiz que monta a React App
+
+
+SRC/ (Source Code):
+. src/index.tsx
+  └─ Entry point do React
+  └─ Renderiza <App /> em #root
+
+. src/App.tsx
+  └─ Component raiz da aplicação
+  └─ Estados: nodes, edges, workflows, executionResult, selectedNodeId
+  └─ Hooks: useNodesState, useEdgesState (React Flow)
+  └─ Funções principais:
+    - saveWorkflow() - POST/PUT para backend
+    - loadWorkflow() - GET do backend
+    - runWorkflow() - Envia para fila e faz polling
+    - onNodeDataChange() - Handler para atualizar dados dos nós
+  └─ UI: Toolbar com botões, ReactFlow, ExecutionSidebar
+
+. src/components/
+  └─ Componentes de nós customizados:
+
+  . NumberNode.tsx
+    └─ Nó para entrada de números
+    └─ Input: payload (número)
+    └─ Output: números manipulados
+
+  . HttpNode.tsx
+    └─ Nó para requisições HTTP
+    └─ Inputs: URL, method, body
+    └─ Output: response JSON
+
+  . LlmNode.tsx
+    └─ Nó para chamadas OpenAI
+    └─ Inputs: prompt, model
+    └─ Output: resposta de IA
+
+  . IfNode.tsx
+    └─ Nó condicional (branch)
+    └─ Inputs: condition
+    └─ Outputs: true/false paths
+
+  . ExecutionSidebar.tsx
+    └─ Painel lateral direito
+    └─ Mostra: dados do nó selecionado, status de execução
+    └─ Atualiza em tempo real durante execução
+
+
+================================================================================
+COMPARTILHADO - SHARED (/packages/shared)
+================================================================================
+
+Raiz:
+. package.json
+  └─ Sem dependências externas (pure TypeScript)
+
+. tsconfig.json
+  └─ Configuração TypeScript do shared
+
+
+SRC:
+. src/index.ts
+  └─ Exports tipos/interfaces globais usados por engine + webapp
+  └─ Ex: WorkflowDefinition, Node, Edge
+
+
+================================================================================
+DOCKER
+================================================================================
+
+. docker-compose.yml (raiz)
+  └─ Services:
+    - postgres:15-alpine (porta 5432, user/password, w8less_db)
+    - redis:7-alpine (porta 6379)
+    - minio (porto 9000/9001, admin/password)
+
+. docker/
+  └─ Podem conter Dockerfiles customizados se necessário
+
+
+================================================================================
+RESUMO FUNCIONAL
+================================================================================
+
+FLUXO 1: SALVAR WORKFLOW
+User → ReactFlow (draw) → App.tsx → API POST /workflows → PrismaClient → Postgres
+
+FLUXO 2: CARREGAR WORKFLOW
+User selects dropdown → API GET /workflows/:id → Prisma → Postgres → App.tsx → ReactFlow
+
+FLUXO 3: EXECUTAR WORKFLOW
+User click "RODAR" → API POST /workflows/execute → BullMQ Queue → Processor → API GET /jobs/:id polling
+
+FILTRAGEM E TIPAGEM:
+├─ Shared (shared/src/index.ts) - Tipos globais
+├─ Engine (packages/engine) - Backend + Banco
+└─ Webapp (packages/webapp) - Frontend + UI
+
+
+================================================================================
+TECNOLOGIAS PRINCIPAIS
+================================================================================
+
+Backend:
+  • Node.js + TypeScript + Express
+  • Prisma 7+ (ORM)
+  • PostgreSQL (Banco)
+  • BullMQ + Redis (Fila de jobs)
+  • OpenAI API (LLM nodes)
+  • CORS habilitado
+
+Frontend:
+  • React + TypeScript
+  • @xyflow/react (React Flow)
+  • Vite (build tool)
+  • CSS inline / Tailwind ready
+
+Orkestração:
+  • Docker Compose v3.8
+  • 3 serviços: Postgres, Redis, MinIO
+
+
+================================================================================
+VARS DE AMBIENTE CRÍTICAS
+================================================================================
+
+Backend (.env):
+  DATABASE_URL=postgresql://user:password@localhost:5432/w8less_db?schema=public
+  (Usuário: user, Senha: password, DB: w8less_db - do docker-compose.yml)
+
+Frontend (vite.config.ts):
+  API_URL=http://localhost:3001 (ou https://*.app.github.dev em Codespaces)
+

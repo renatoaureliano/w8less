@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",         /* <--- Importante para não dar erro no React */
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["vite/client"]    /* <--- Ajuda o TS a entender arquivos importados pelo Vite */
+  },
+  "references": [
+    { "path": "../shared" }     /* <--- AQUI ESTÁ A CORREÇÃO */
+  ],
+  "include": ["src/**/*"]
+}

@@ -3,55 +3,126 @@
 @tailwind components;
 @tailwind utilities;
 
-/* UI Overhaul: Dark n8n-like styles para nós (usa @apply do Tailwind) */
+/* --- GLOBAL SETTINGS --- */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-/* Container do Nó (Card) */
+/* --- APP SHELL --- */
+.app-shell {
+  @apply min-h-screen bg-zinc-950 text-zinc-100;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell.dark {
+  @apply bg-zinc-950 text-zinc-200;
+}
+
+/* --- TEMA DOS NÓS (Cards estilo n8n) --- */
 .w8less-node {
-  @apply bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl min-w-[280px] text-white overflow-hidden transition-all duration-200 hover:shadow-2xl hover:border-zinc-600;
+  @apply bg-zinc-900/95 backdrop-blur-md border border-zinc-700/50 rounded-xl shadow-xl min-w-[280px] text-white overflow-hidden transition-all duration-200;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
 }
 
-/* Cabeçalho do Nó (Ícone + Título) */
+.react-flow__node.selected .w8less-node {
+  @apply ring-2 ring-indigo-500 border-transparent shadow-2xl;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
 .w8less-header {
-  @apply flex items-center gap-3 p-3 bg-zinc-800/50 border-b border-zinc-700/50;
+  @apply flex items-center gap-3 p-3 bg-gradient-to-r from-zinc-800 via-zinc-800 to-zinc-900 border-b border-zinc-700/50;
 }
 
-/* Corpo do Nó (Inputs) */
 .w8less-body {
-  @apply p-4 space-y-3 text-xs text-zinc-300;
+  @apply p-4 space-y-3 text-xs text-zinc-400;
 }
 
-/* Inputs e Selects */
 .w8less-input {
-  @apply w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-zinc-200 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors mt-1;
+  @apply w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-zinc-300 placeholder-zinc-700 text-xs focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-mono shadow-inner;
 }
 
-/* Labels */
 .w8less-label {
-  @apply block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1;
+  @apply block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1.5 ml-1;
 }
 
-/* Handles (Conectores) */
-.react-flow__handle {
-  @apply w-3 h-3 border-2 !bg-zinc-400 !border-zinc-900 transition-transform hover:scale-125;
-}
-
-/* Pequenas utilidades para a toolbar */
+/* --- TOOLBAR --- */
 .w8less-toolbar {
   @apply flex items-center gap-3 p-3 bg-zinc-900 border-b border-zinc-800;
 }
+
 .w8less-toolbar button {
-  @apply px-3 py-2 rounded-md bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700;
+  @apply px-3 py-2 rounded-md bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700 transition-colors;
 }
+
+.w8less-toolbar button:active {
+  @apply scale-95;
+}
+
 .w8less-toolbar button.danger {
   @apply bg-red-600 text-white hover:bg-red-500;
 }
 
-/* Aplica background dark para a área principal */
-.app-shell {
-  @apply min-h-screen bg-zinc-950 text-zinc-100;
+.w8less-toolbar button:disabled {
+  @apply opacity-50 cursor-not-allowed hover:bg-zinc-800;
 }
 
-/* Pequenos ajustes de responsividade */
+/* --- SIDEBAR DE EXECUÇÃO --- */
+.w8less-sidebar {
+  @apply w-80 bg-zinc-900/95 border-l border-zinc-800 overflow-y-auto flex-shrink-0;
+  max-height: 100%;
+  backdrop-filter: blur(0.5px);
+}
+
+.w8less-sidebar pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* --- HANDLES (Conectores) --- */
+.react-flow__handle {
+  @apply w-3 h-3 border-2 !bg-zinc-400 !border-zinc-900 transition-transform hover:scale-125;
+}
+
+.react-flow__handle-connected {
+  @apply !bg-indigo-500 !border-indigo-700;
+}
+
+/* --- REACT FLOW CONTROLS --- */
+.react-flow__controls button {
+  @apply !bg-zinc-800 !border-zinc-700 !text-zinc-400 hover:!text-white !fill-current;
+}
+
+/* --- UTILITÁRIOS ADICIONAIS --- */
+.webhook-url {
+  @apply bg-zinc-900 border border-zinc-700 rounded-md p-2 text-xs text-zinc-200 font-medium break-words;
+}
+
+.copy-btn {
+  @apply inline-flex items-center gap-2 px-2 py-1 ml-2 rounded bg-zinc-800/60 text-zinc-200 border border-zinc-700 hover:bg-zinc-700/80 transition;
+}
+
+.copy-btn:active {
+  @apply scale-95;
+}
+
+.w8less-badge {
+  @apply text-[11px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700;
+}
+
+/* --- RESPONSIVIDADE --- */
 @media (max-width: 640px) {
-  .w8less-node { @apply min-w-[220px]; }
+  .w8less-node {
+    @apply min-w-[220px];
+  }
+  
+  .w8less-sidebar {
+    @apply w-72;
+  }
 }

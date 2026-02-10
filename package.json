@@ -1,0 +1,23 @@
+{
+  "name": "w8less-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:engine": "npm run dev --workspace=@w8less/engine",
+    "dev:web": "npm run dev --workspace=@w8less/webapp",
+    "build": "npm run build --workspaces",
+    "infra:up": "docker-compose -f docker/docker-compose.yml up -d"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.3.0",
+    "pg": "^8.18.0"
+  }
+}

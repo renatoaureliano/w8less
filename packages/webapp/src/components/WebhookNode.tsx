@@ -29,7 +29,7 @@ export default function WebhookNode({ id, data }: Props) {
   };
 
   return (
-    <div className="w8less-node">
+    <div className="w8less-node border-l-4 border-l-amber-500" style={{ borderLeft: '4px solid #f59e0b' }}>
       <div className="w8less-header">
         <div style={{ fontWeight: 700 }}>⚡ Webhook</div>
       </div>

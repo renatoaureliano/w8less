@@ -75,10 +75,10 @@ export function LlmNode({ data, id }: CustomNodeProps) {
   }, [data, id]);
 
   const borderColor = data.status === 'success' ? '#22c55e' : data.status === 'error' ? '#ef4444' : '#a855f7';
-  const style = { ...styleBase, border: `2px solid ${borderColor}` };
+  const style = { ...styleBase, border: `2px solid ${borderColor}`, borderLeft: `4px solid #a855f7` };
 
   return (
-    <div className="w8less-node" style={style}>
+    <div className="w8less-node border-l-4 border-l-purple-500" style={style}>
       <Handle type="target" position={Position.Top} />
 
       <div className="w8less-header">

@@ -24,10 +24,10 @@ export function HttpNode({ data, id }: CustomNodeProps) {
   }, [data, id]);
 
   const borderColor = data.status === 'success' ? '#22c55e' : data.status === 'error' ? '#ef4444' : '#3b82f6';
-  const style = { border: `2px solid ${borderColor}` };
+  const style = { border: `2px solid ${borderColor}`, borderLeft: `4px solid #3b82f6` };
 
   return (
-    <div className="w8less-node" style={style}>
+    <div className="w8less-node border-l-4 border-l-blue-500" style={style}>
       <Handle type="target" position={Position.Top} />
 
       <div className="w8less-header">

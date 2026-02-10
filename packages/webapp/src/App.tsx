@@ -4,10 +4,12 @@ import { HttpNode } from './components/HttpNode'; // Verifique se a importação
 import LlmNode from './components/LlmNode';
 import IfNode from './components/IfNode';
 import WebhookNode from './components/WebhookNode';
+import OutputNode from './components/OutputNode';
 import ExecutionSidebar from './components/ExecutionSidebar';
 import {
   ReactFlow,
   Background,
+  BackgroundVariant,
   Controls,
   useNodesState,
   useEdgesState,
@@ -24,6 +26,7 @@ const nodeTypes = {
   llmNode: LlmNode,
   ifNode: IfNode,
   webhookNode: WebhookNode,
+  outputNode: OutputNode,
 };
 
 // 👇 IMPORTANTE: Coloque o seu link do Codespaces aqui (sem barra no final)
@@ -170,6 +173,9 @@ export default function App() {
       case 'numberInput':
         data = { payload: 0, label: '' };
         break;
+      case 'outputNode':
+        data = { label: 'Final' };
+        break;
       default:
         data = {};
     }
@@ -258,7 +264,7 @@ export default function App() {
 
   // --- RENDERIZAÇÃO ---
   return (
-    <div className="app-shell" style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-shell dark" style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
       
       {/* BARRA DE FERRAMENTAS SUPERIOR */}
       <div className="w8less-toolbar" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -300,6 +306,7 @@ export default function App() {
         <button onClick={() => addNewNode('ifNode')}>🔀 Decisão (IF)</button>
         <button onClick={() => addNewNode('webhookNode')}>⚡ Webhook</button>
         <button onClick={() => addNewNode('numberInput')}>🔢 Input Manual</button>
+        <button onClick={() => addNewNode('outputNode')}>🏁 Output</button>
 
         <button
           onClick={deleteSelectedNode}
@@ -311,33 +318,37 @@ export default function App() {
         </button>
       </div>
 
-      {/* ÁREA DO GRAFO */}
-      <div style={{ flex: 1 }}>
-        <ReactFlow
-          nodes={nodesWithHandler}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          fitView
-          onNodeClick={(_, node) => setSelectedNodeId(node.id)}
-          // permitir deletar via teclado e sincronizar seleção/estado
-          deleteKeyCode={['Backspace', 'Delete']}
-          onNodesDelete={(deleted) => {
-            const deletedIds = deleted.map(d => d.id);
-            setNodes(prev => prev.filter(n => !deletedIds.includes(n.id)));
-            setEdges(prev => prev.filter(e => !deletedIds.includes(e.source) && !deletedIds.includes(e.target)));
-            setSelectedNodeId(null);
-          }}
-        >
-          <Background color="#f1f5f9" gap={16} />
-          <Controls />
-        </ReactFlow>
-      </div>
+      {/* ÁREA PRINCIPAL (Grafo + Sidebar) */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        {/* ÁREA DO GRAFO */}
+        <div style={{ flex: 1 }}>
+          <ReactFlow
+            nodes={nodesWithHandler}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            fitView
+            onNodeClick={(_, node) => setSelectedNodeId(node.id)}
+            // permitir deletar via teclado e sincronizar seleção/estado
+            deleteKeyCode={['Backspace', 'Delete']}
+            onNodesDelete={(deleted) => {
+              const deletedIds = deleted.map(d => d.id);
+              setNodes(prev => prev.filter(n => !deletedIds.includes(n.id)));
+              setEdges(prev => prev.filter(e => !deletedIds.includes(e.source) && !deletedIds.includes(e.target)));
+              setSelectedNodeId(null);
+            }}
+            defaultEdgeOptions={{ type: 'smoothstep', animated: false, style: { stroke: '#52525b', strokeWidth: 2 } }}
+          >
+            <Background color="#3f3f46" variant={BackgroundVariant.Dots} gap={24} />
+            <Controls />
+          </ReactFlow>
+        </div>
 
-      {/* SIDEBAR DE INSPEÇÃO */}
-      <ExecutionSidebar selectedNodeId={selectedNodeId} executionData={executionResult} />
+        {/* SIDEBAR DE INSPEÇÃO */}
+        <ExecutionSidebar selectedNodeId={selectedNodeId} executionData={executionResult} />
+      </div>
     </div>
   );
 }
