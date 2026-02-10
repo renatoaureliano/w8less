@@ -1,0 +1,57 @@
+/* Global styles and Tailwind-like utility classes for W8LESS UI (dark n8n-like) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* UI Overhaul: Dark n8n-like styles para nós (usa @apply do Tailwind) */
+
+/* Container do Nó (Card) */
+.w8less-node {
+  @apply bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl min-w-[280px] text-white overflow-hidden transition-all duration-200 hover:shadow-2xl hover:border-zinc-600;
+}
+
+/* Cabeçalho do Nó (Ícone + Título) */
+.w8less-header {
+  @apply flex items-center gap-3 p-3 bg-zinc-800/50 border-b border-zinc-700/50;
+}
+
+/* Corpo do Nó (Inputs) */
+.w8less-body {
+  @apply p-4 space-y-3 text-xs text-zinc-300;
+}
+
+/* Inputs e Selects */
+.w8less-input {
+  @apply w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-zinc-200 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors mt-1;
+}
+
+/* Labels */
+.w8less-label {
+  @apply block text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1;
+}
+
+/* Handles (Conectores) */
+.react-flow__handle {
+  @apply w-3 h-3 border-2 !bg-zinc-400 !border-zinc-900 transition-transform hover:scale-125;
+}
+
+/* Pequenas utilidades para a toolbar */
+.w8less-toolbar {
+  @apply flex items-center gap-3 p-3 bg-zinc-900 border-b border-zinc-800;
+}
+.w8less-toolbar button {
+  @apply px-3 py-2 rounded-md bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700;
+}
+.w8less-toolbar button.danger {
+  @apply bg-red-600 text-white hover:bg-red-500;
+}
+
+/* Aplica background dark para a área principal */
+.app-shell {
+  @apply min-h-screen bg-zinc-950 text-zinc-100;
+}
+
+/* Pequenos ajustes de responsividade */
+@media (max-width: 640px) {
+  .w8less-node { @apply min-w-[220px]; }
+}
