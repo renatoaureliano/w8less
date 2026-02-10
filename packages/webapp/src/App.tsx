@@ -134,6 +134,17 @@ export default function App() {
     );
   }, [setNodes]);
 
+  // --- FUNÇÃO: Deletar nó selecionado ---
+  const deleteSelectedNode = useCallback(() => {
+    if (!selectedNodeId) return;
+    // Remove o nó selecionado
+    setNodes(prev => prev.filter(n => n.id !== selectedNodeId));
+    // Remove edges conectadas ao nó
+    setEdges(prev => prev.filter(e => e.source !== selectedNodeId && e.target !== selectedNodeId));
+    // Limpa seleção para fechar sidebar
+    setSelectedNodeId(null);
+  }, [selectedNodeId, setNodes, setEdges]);
+
   // --- FUNÇÃO: Adicionar novo nó (Toolbar) ---
   const addNewNode = useCallback((type: string) => {
     const id = (typeof crypto !== 'undefined' && (crypto as any).randomUUID)
@@ -285,6 +296,22 @@ export default function App() {
         <button onClick={() => addNewNode('ifNode')} style={{ padding: 8, cursor: 'pointer', borderRadius: 6 }}>🔀 Decisão (IF)</button>
         <button onClick={() => addNewNode('webhookNode')} style={{ padding: 8, cursor: 'pointer', borderRadius: 6 }}>⚡ Webhook</button>
         <button onClick={() => addNewNode('numberInput')} style={{ padding: 8, cursor: 'pointer', borderRadius: 6 }}>🔢 Input Manual</button>
+
+        <button
+          onClick={deleteSelectedNode}
+          disabled={!selectedNodeId}
+          style={{
+            padding: '8px 12px',
+            backgroundColor: '#ef4444',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 6,
+            cursor: selectedNodeId ? 'pointer' : 'not-allowed',
+            marginLeft: 8
+          }}
+        >
+          🗑️ Deletar
+        </button>
       </div>
 
       {/* ÁREA DO GRAFO */}
@@ -298,6 +325,14 @@ export default function App() {
           nodeTypes={nodeTypes}
           fitView
           onNodeClick={(_, node) => setSelectedNodeId(node.id)}
+          // permitir deletar via teclado e sincronizar seleção/estado
+          deleteKeyCode={['Backspace', 'Delete']}
+          onNodesDelete={(deleted) => {
+            const deletedIds = deleted.map(d => d.id);
+            setNodes(prev => prev.filter(n => !deletedIds.includes(n.id)));
+            setEdges(prev => prev.filter(e => !deletedIds.includes(e.source) && !deletedIds.includes(e.target)));
+            setSelectedNodeId(null);
+          }}
         >
           <Background color="#f1f5f9" gap={16} />
           <Controls />
