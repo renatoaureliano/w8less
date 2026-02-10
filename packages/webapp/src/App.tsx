@@ -258,10 +258,10 @@ export default function App() {
 
   // --- RENDERIZAÇÃO ---
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-shell" style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
       
       {/* BARRA DE FERRAMENTAS SUPERIOR */}
-      <div style={{ padding: '10px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div className="w8less-toolbar" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <button 
           onClick={runWorkflow}
           style={{ padding: '10px 20px', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -294,25 +294,18 @@ export default function App() {
       </div>
 
       {/* BARRA DE FERRAMENTAS DE NÓS (Logo abaixo do header) */}
-      <div style={{ display: 'flex', gap: 10, padding: 8, alignItems: 'center', background: 'rgba(2,6,23,0.02)', borderBottom: '1px solid #e6eef8' }}>
-        <button onClick={() => addNewNode('httpNode')} style={{ padding: 8, cursor: 'pointer', borderRadius: 6 }}>🌐 HTTP Request</button>
-        <button onClick={() => addNewNode('llmNode')} style={{ padding: 8, cursor: 'pointer', borderRadius: 6 }}>🧠 AI / LLM</button>
-        <button onClick={() => addNewNode('ifNode')} style={{ padding: 8, cursor: 'pointer', borderRadius: 6 }}>🔀 Decisão (IF)</button>
-        <button onClick={() => addNewNode('webhookNode')} style={{ padding: 8, cursor: 'pointer', borderRadius: 6 }}>⚡ Webhook</button>
-        <button onClick={() => addNewNode('numberInput')} style={{ padding: 8, cursor: 'pointer', borderRadius: 6 }}>🔢 Input Manual</button>
+      <div className="w8less-toolbar" style={{ gap: 10, padding: 8, alignItems: 'center' }}>
+        <button onClick={() => addNewNode('httpNode')}>🌐 HTTP Request</button>
+        <button onClick={() => addNewNode('llmNode')}>🧠 AI / LLM</button>
+        <button onClick={() => addNewNode('ifNode')}>🔀 Decisão (IF)</button>
+        <button onClick={() => addNewNode('webhookNode')}>⚡ Webhook</button>
+        <button onClick={() => addNewNode('numberInput')}>🔢 Input Manual</button>
 
         <button
           onClick={deleteSelectedNode}
           disabled={!selectedNodeId}
-          style={{
-            padding: '8px 12px',
-            backgroundColor: '#ef4444',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            cursor: selectedNodeId ? 'pointer' : 'not-allowed',
-            marginLeft: 8
-          }}
+          className={selectedNodeId ? 'danger' : ''}
+          style={{ marginLeft: 8 }}
         >
           🗑️ Deletar
         </button>
